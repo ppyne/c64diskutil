@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/icon_Unknown.png</file>
+        <file>icons/icon_DEL.png</file>
+        <file>icons/icon_SEQ.png</file>
+        <file>icons/icon_PRG.png</file>
+        <file>icons/icon_USR.png</file>
+        <file>icons/icon_REL.png</file>
+        <file>icons/icon_GEOS.png</file>
+        <file>icons/icon_FLOPPY_525.png</file>
+        <file>icons/icon_FLOPPY_35.png</file>
+        <file>icons/icon_FOLDER.png</file>
+        <file>icons/icon_FOLDER_C64.png</file>
+        <file>fonts/font_Consolas.ttf</file>
+        <file>images/sectors_525.svg</file>
+        <file>images/sectors_35.svg</file>
+    </qresource>
+</RCC>

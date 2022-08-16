@@ -1,0 +1,228 @@
+	*** GEOS VLIR (Variable Length Index Record)
+
+** Document revision 1.1
+
+  Later on in the life of the C64, an OS called GEOS came  out.  It  was  a
+system much like the many windowing OS's (MAC OS, Windows) in that it  used
+icons, windows, a mouse pointer and resource drivers. In order  to  contain
+all the information needed for the windowing system (icon, window position,
+creation time/date), a new filetype called  VLIR  was  needed.  While  GEOS
+files might not be of interest to many of the emulator users, it is  likely
+that these files will be  encountered,  and  knowledge  of  them  would  be
+helpful.
+
+  Each GEOS file or  application  is  comprised  of  many  separate  chains
+(called RECORDS) for different sections of the app/file. Each RECORD can be
+loaded in separately and overtop of other ones. Below  is  a  dump  of  the
+first directory sector of the GEOS 2.0 disk. Note  the  first  entry  seems
+normal enough, but the rest have additional  information  in  the  normally
+unused section of the entry.
+
+    00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+    -----------------------------------------------
+00: 12 04 82 13 00 47 45 4F 53 20 56 32 2E 30 20 45  <- Normal entry
+10: 4E 47 4C 2E A0 00 00 00 00 00 00 00 00 00 58 00
+20: 00 00 83 02 02 44 45 53 4B 20 54 4F 50 A0 A0 A0  <- First GEOS file.
+30: A0 A0 A0 A0 A0 02 0F 01 04 58 08 13 0D 23 78 00  <- Note extra info
+40: 00 00 83 0B 13 43 4F 4D 4D 20 31 33 35 31 28 61     from offset $15 to
+50: 29 A0 A0 A0 A0 08 0F 00 0A 58 05 09 15 24 03 00     $1D.
+60: 00 00 83 0F 0D 4D 50 53 2D 38 30 31 A0 A0 A0 A0
+70: A0 A0 A0 A0 A0 0F 05 00 09 56 07 19 01 00 04 00
+80: 00 00 83 08 0D 43 4F 4E 46 49 47 55 52 45 A0 A0
+90: A0 A0 A0 A0 A0 08 05 01 0E 58 05 1F 0B 31 4E 00
+A0: 00 00 83 01 10 50 41 49 4E 54 20 44 52 49 56 45
+B0: 52 53 A0 A0 A0 01 08 00 06 57 08 0C 0E 00 12 00
+C0: 00 00 83 0B 05 70 72 65 66 65 72 65 6E 63 65 20
+D0: 6D 67 72 A0 A0 0B 12 00 05 56 0A 09 13 2D 16 00
+E0: 00 00 83 08 11 70 61 64 20 63 6F 6C 6F 72 20 6D
+F0: 67 72 A0 A0 A0 08 07 00 05 58 05 19 0C 10 16 00
+
+  Lets analyze the second entry to see whats all involved with GEOS  files.
+Note, the offset values have been changed to 0 to make referencing easier.
+
+00: 00 00 83 02 02 44 45 53 4B 20 54 4F 50 A0 A0 A0
+10: A0 A0 A0 A0 A0 02 0F 01 04 58 08 13 0D 23 78 00
+
+  Byte:   $02: C64 filetype (see the section on D64 for an explanation) REL
+               files are not allowed.
+        03-04: Starting track/sector (02/02 from above) of C64 file if GEOS
+               filetype is $00. If GEOS filetype is non-zero,  track/sector
+               of single-sector RECORD block
+        05-14: Filename (in ASCII, padded with $A0, case varies)
+        15-16: Track/sector location of info block
+           17: GEOS file structure
+                 $00 - Sequential
+                  01 - VLIR file
+           18: GEOS filetype
+                 $00 - Non-GEOS (normal C64 file)
+                  01 - BASIC
+                  02 - Assembler
+                  03 - Data file
+                  04 - System File
+                  05 - Desk Accessory
+                  06 - Application
+                  07 - Application Data (user-created documents)
+                  08 - Font File
+                  09 - Printer Driver
+                  0A - Input Driver
+                  0B - Disk Driver (or Disk Device)
+                  0C - System Boot File
+                  0D - Temporary
+                  0E - Auto-Execute File
+               0F-FF - Undefined
+           19: Year (19xx)
+           1A: Month (1-12)
+           1B: Day (1-31)
+           1C: Hour (0-23, military time)
+           1D: Minute (0-59)
+        1E-1F: Filesize, in sectors (low/high byte order)
+
+  If the values at byte $18 is 00 then we have a  normal,  sequential,  C64
+file, without an info block. If the value at byte  $18  is  anything  other
+than 00, we have a GEOS file, be it VLIR or sequential, with an info block.
+
+  The info block stores items like  the  ICON,  size,  load  address,  file
+types, description, etc, and is always only 1 sector long. Since there is a
+fixed space to store information, the ICON height, width and bitmap  length
+must be the same. Here is a sample info block, and layout...
+
+    00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+    -----------------------------------------------
+00: 00 FF 03 15 BF FF FF FF 92 49 01 FF FF 01 80 00
+10: 1D BF FF DD A0 00 5D BF FF C1 A0 00 5D A1 C6 55
+20: A0 29 5D A0 C9 41 A1 09 41 B9 D6 41 A8 00 41 BF
+30: FF C1 80 00 1D 9C 00 15 9C 00 15 80 00 1D 80 00
+40: 01 FF FF FF 83 04 01 56 19 55 19 75 51 64 65 73
+50: 6B 54 6F 70 20 41 4D 20 20 56 32 2E 30 00 00 00
+60: 00 50 65 74 65 72 20 53 63 68 65 70 65 72 73 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 4C 2A 5B 4C 59 5D 4C
+90: A7 61 4C 3A 62 AD 8A 84 D0 01 60 20 7E 23 20 9C
+A0: 55 73 65 20 74 68 65 20 64 65 73 6B 54 6F 70 20
+B0: 74 6F 20 6D 61 6E 61 67 65 20 61 6E 64 20 6D 61
+C0: 6E 69 70 75 6C 61 74 65 20 79 6F 75 72 20 66 69
+D0: 6C 65 73 2E 00 03 20 E3 5C 68 85 FB 20 4F 61 20
+E0: 13 61 20 32 61 20 F2 5C A9 0C 20 CC 49 A9 2E 85
+F0: 13 A9 F9 85 12 A9 2F 85 15 A9 01 85 14 A9 84 85
+
+  Byte: $00-01: Contains $00/$FF since its only 1 sector long
+         02-04: Information sector ID bytes (03 15 BF). The "03" is  likely
+                the bitmap width, and the "15" is likely the bitmap height,
+                but rare exceptions do exist to this!
+         05-43: Icon bitmap (sprite format, 63 bytes)
+            44: C64 filetype (same as that from the directory entry)
+            45: GEOS filetype (same as that from the directory entry)
+            46: GEOS file structure (same as that from the dir entry)
+         47-48: Program load address
+         49-4A: Program end address (only with accessories)
+         4B-4C: Program start address
+         4D-60: Class text (terminated with a $00)
+         61-74: Author (with application data: name  of  application  disk,
+                terminated with a $00. This string may not  necessarily  be
+                set, or it may contain invalid data)
+                The following GEOS files have authors:
+                  1 - BASIC
+                  2 - Assembler
+                  5 - Desk Accessory
+                  6 - Application
+                  9 - Printer Driver
+                 10 - Input Driver
+         75-88: If a document, the name of the application that created it.
+         89-9F: Available for applications, unreserved.
+         A0-FF: Description (terminated with a $00)
+
+Note: all the text strings above are in ASCII, not PETASCII.
+
+  If the file is a VLIR, then the RECORD block is of interest. This  single
+sector is made up of up to 127 track/sector pointers, each of  which  point
+to program sections (called RECORDS). VLIR files are comprised of  loadable
+RECORDS (overlays, if you wish to use PC terminology). The first RECORD  is
+what is always loaded first when you run that application. After that,  the
+OS loads whatever RECORD it needs. Here is a partial sample of  the  RECORD
+sector...
+
+00: 00 FF 08 00 09 04 09 03 0A 0A 0B 11 0F 11 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+  Byte: $00-01: Contains 00/FF since its only 1 sector long
+         02-03: Starting track/sector (8,0) for the first RECORD
+         04-05: Starting track/sector (9,4) for the second RECORD
+         06-07: Starting track/sector (9,3) for the third RECORD
+         08-09: fourth RECORD (10/10)
+         0A-0B: fifth RECORD (11/17)
+         0C-0D: sixth RECORD (15/17)
+         0E-0F: seventh RECORD (0/0)
+
+  When a T/S link of $00/$00 is encountered, we  are  at  the  end  of  the
+RECORD block. If the T/S  link  is  a  $00/$FF,  then  the  record  is  not
+available.
+
+  Note that if you add up the sectors so far, we have only  used  two,  one
+for the INFO sector and one for the RECORD sector. Obviously there are more
+used, and they are contained in the sector chains from the  RECORD  sector.
+Each t/s link in the RECORD sector points to a chain of sectors, the length
+of which is included in the  sector  count  for  the  GEOS  file.  Doing  a
+VALIDATE on a GEOS disk when not in GEOS would de-allocate all these sector
+chains (and the RECORD sector as well), which would not be good!
+
+  There are also changes to the BAM sector from a normal D64 file.  Looking
+at the D64 entry from before, we have all the normal information, plus  the
+new information starting at $AB:
+
+  Bytes:$00-01: Track/Sector location of the first directory sector (should
+                be 18,1, but it doesn't seem to matter)
+            02: Disk DOS version type
+                  $41=1541
+            03: $2A, DOS version.
+         04-8F: BAM entries for each track, in groups  of  four  bytes  per
+                track, starting on track 1
+         90-9F: Disk Name (padded with $A0)
+         A0-A1: Filled with $A0
+         A2-A3: Disk ID
+            A4: Usually $A0
+         A5-A6: DOS type, usually "2A"
+         A7-AA: Filled with $A0
+         AB-AC: Border sector trk/ssec (*see below)
+         AD-BC: GEOS ID string ("GEOS format V1.0", in ASCII)
+         BD-DC: Unused (usually $00)
+         DD-FF: Free sector info for tracks  36-70,  used  on  double-sided
+                1571 disks only!
+
+  If you want to check to see if a disk is formatted for  GEOS,  check  the
+string in the BAM sector starting at $AD (offset 173) for the string  "GEOS
+format". If it does not match, the disk is not in GEOS format. This is  the
+way that GEOS itself verifies if a disk is GEOS formatted.
+
+  Note: GEOS disks contain something called a "border sector" which is also
+only one sector long, has the same layout as a normal directory sector, and
+is used for copying files from one disk to another. When you need to copy a
+file, you drag the icon to the bottom of the screen and the file  is  moved
+from its normal location in the directory to the border sector. Since it is
+only 1 sector, it can hold only 8 entries.
+
+  On a D64/1541, here is how GEOS allocates blocks as it either saves files
+or needs blocks for other purposes:
+
+Saving files: When there's still at least one free  block  in  the  current
+track, then the next block is searched for starting at the sector which  is
+away from the current one by at least the soft interleave.  The  exceptions
+are track 25 and  above  where  the  interleave  changes  to  the  original
+interleave _minus one_.
+
+When stepping to the next track, the sector where the  next  block  of  the
+files is saved to is computed as following:
+
+  New sector = (Next track - Previous Track) * 2 + 4 + Soft interleave
+
+Getting the Border Sector: When allocating  the  GEOS  border  sector,  the
+search starts upwards from sector 19/0 for a  free  sector  and  then  from
+sector 1/0 if no free one has been found yet.
+
+Getting the first sector for saving a file: Start searching from sector 1/0
+and, on the first track that has  at  least  one  free  sector,  you  start
+searching at the sector computed by the form above.
+
+
+  Seeing as this is not an emulator format,  I  will  not  comment  on  its
+relative merits. It is simply another C64 file type.
