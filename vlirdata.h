@@ -13,12 +13,14 @@ class VLIRData {
         int sector();
         QByteArray &data();
         int index();
+        int id();
     private:
         QString Label;
         int Track;
         int Sector;
         QByteArray Data;
         int Index;
+        int ID;
 };
 
 #endif // VLIRDATA_H

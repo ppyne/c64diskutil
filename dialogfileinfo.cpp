@@ -112,7 +112,7 @@ void DialogFileInfo::removeGeosFields() {
 void DialogFileInfo::on_comboBoxVLIRRecords_textActivated(const QString &arg1) {
     VLIRData *vlirdata = _VLIRDataMap.value(arg1);
     HexEditVLIR.setData(vlirdata->data());
-    QString str = "Record: " + QString::number(vlirdata->index() + 1) + "/" + QString::number(_VLIRDataMap.count()) + ".";
+    QString str = QString("Record %1").arg(vlirdata->id(), 3, 10, QLatin1Char('0')) + " (" + QString::number(vlirdata->index() + 1) + "/" + QString::number(_VLIRDataMap.count()) + ").";
     if (vlirdata->data().size() >= 1024)
         str += " Size: " + humanSize(vlirdata->data().size()) + " (" +  QString::number(vlirdata->data().size()) + " byte" + (vlirdata->data().size() > 1 ? "s" : "") + ").";
     else

@@ -1,13 +1,9 @@
 #include "geosrecordpointer.h"
 
-GeosRecordPointer::GeosRecordPointer(int track, int sector) {
+GeosRecordPointer::GeosRecordPointer(int track, int sector, int id) {
     this->Track = track;
     this->Sector = sector;
-}
-
-void GeosRecordPointer::set(int track, int sector) {
-    this->Track = track;
-    this->Sector = sector;
+    this->ID = id;
 }
 
 int GeosRecordPointer::track() {
@@ -16,4 +12,8 @@ int GeosRecordPointer::track() {
 
 int GeosRecordPointer::sector() {
     return this->Sector;
+}
+
+int GeosRecordPointer::id() {
+    return this->ID;
 }
